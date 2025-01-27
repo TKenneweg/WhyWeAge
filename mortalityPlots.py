@@ -1,24 +1,36 @@
 from util import *
 from matplotlib.ticker import FuncFormatter
 import matplotlib.pyplot as plt
-
+import numpy as np
 def to_fraction(y, pos):
     return f'{y:.2%}'
 
-def getLifeExpectancy(crude_rate, max_age=84):
-    """
-    Given a list or function 'mortality' such that mortality[a] = M(a),
-    return the expected life (life expectancy).
-    """
-    life_expectancy = 0.0
-    prob_survive_to_a = 1.0  # S(0) = 1.0, meaning newborn survival is 100% initially
-    
-    for a in range(max_age + 1):
-        life_expectancy += prob_survive_to_a
-        prob_survive_to_a *= (1.0 - crude_rate[a])  
-        if prob_survive_to_a < 1e-15:
-            break
-    return life_expectancy
+
+def getLifeExpectancy(mortalityByAge, max_age=84):
+    le = 0 
+    for age in range(len(mortalityByAge)):
+        chanceofDyingAtAge = 1
+        for j in range(age):
+            chanceofDyingAtAge *= (1-mortalityByAge[j])
+        chanceofDyingAtAge *= mortalityByAge[age]
+        le += chanceofDyingAtAge * age
+    chanceofSurvivingToMaxAge = 1
+
+
+    #add all the survivors to the max age
+    for j in range(len(mortalityByAge)):
+        chanceofSurvivingToMaxAge *= (1-mortalityByAge[j])
+    le += chanceofSurvivingToMaxAge * len(mortalityByAge)
+    return le 
+
+
+def getAccumulatedChanceofDying(mortalityByAge):
+    accumulatedChanceofDying = 1
+    for i in range(len(mortalityByAge)):
+        accumulatedChanceofDying *= (1-mortalityByAge[i]) #chance to survive to 85
+    return 1-accumulatedChanceofDying
+
+
 
 if __name__ == "__main__":
     file_pathInternal = "./InternalMortality.txt"  # Update this with the path to your file
@@ -26,17 +38,24 @@ if __name__ == "__main__":
     ages, internalMortality = getMortalityData(file_pathInternal)
     ages, externalMortality = getMortalityData(file_pathExternal)
 
+    # adjust mortality to ancient era
     # externalMortality = [10*x for x in externalMortality]
     
     allCauseMortality = [internalMortality[i] + externalMortality[i] for i in range(len(internalMortality))]
 
-    print(getLifeExpectancy(allCauseMortality))
+
+
+    print("Life Expectancy: ", getLifeExpectancy(allCauseMortality))
+    print("External Chance of Dying: ", getAccumulatedChanceofDying(externalMortality))
+    print("Internal Chance of Dying: ",getAccumulatedChanceofDying(internalMortality))
+
+
 
     plt.plot(ages, externalMortality, label='External Mortality')
     plt.plot(ages, internalMortality, label='Internal Mortality')
-    plt.plot(ages, allCauseMortality, label='All Cause Mortality')
+    # plt.plot(ages, allCauseMortality, label='All Cause Mortality')
     # plt.yscale('log')
-    # plt.ylim(0, 0.001)
+    # plt.ylim(0, 0.002)
 
     plt.xlabel('Age')
     plt.gca().xaxis.set_major_locator(plt.MaxNLocator(nbins=10))

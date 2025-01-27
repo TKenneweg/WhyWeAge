@@ -28,3 +28,28 @@ def getMortalityData(file_path):
     # Output the results
     # print("Single-Year Ages Code:", single_year_ages_code)
     print("Crude Rate:", crude_rate)
+
+
+
+
+def getLifeExpectancyTailFormula(mortalityByAge, max_age=84):
+    """
+    Given a list or function 'mortality' such that mortality[a] = M(a),
+    return the expected life (life expectancy).
+    """
+    life_expectancy = 0.0
+    prob_survive_to_a = 1.0  # S(0) = 1.0, meaning newborn survival is 100% initially
+    
+    for a in range(max_age + 1):
+        life_expectancy += prob_survive_to_a
+        prob_survive_to_a *= (1.0 - mortalityByAge[a])  
+        if prob_survive_to_a < 1e-15:
+            break
+    return life_expectancy
+def getAccumulatedChanceofDying2(mortalityByAge):
+    accumulatedChanceofDying = 0
+    for i in range(len(mortalityByAge)):
+        accumulatedChanceofDying += np.log((1-mortalityByAge[i])) #chance to survive to 85
+    accumulatedChanceofDying = np.exp(accumulatedChanceofDying)
+    return 1-accumulatedChanceofDying
+

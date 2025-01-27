@@ -1,6 +1,6 @@
 # Ignore Python virtual environments
 venv/
-
+video/
 # Ignore Python cache
 __pycache__/
 
