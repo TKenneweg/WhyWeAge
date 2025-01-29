@@ -37,41 +37,17 @@ if __name__ == "__main__":
     ages, internalMortality = getMortalityData("./InternalMortality.txt")
     ages, externalMortality = getMortalityData("./ExternalMortality.txt")
 
-    # adjust mortality to ancient era
-    externalMortality = [0.01 for x in externalMortality]
-    # externalMortality = [20*x for x in externalMortality]
 
-
-    #gene A: 2x less internal Mortality
-    geneA = (1, 0.5) #external, internal
-    externalMortality = [geneA[0]*x for x in externalMortality]
-    internalMortality = [geneA[1]*x for x in internalMortality]
-    
-
-    #gene B: 2x less external Mortality
-    geneB = (0.5, 1) #external, internal
-    externalMortality = [geneB[0]*x for x in externalMortality]
-    internalMortality = [geneB[1]*x for x in internalMortality]
-    
-    #gene C: 2x less external Mortality but 2x more internal mortality!
-    geneC = (0.5, 2) #external, internal
-    externalMortality = [geneC[0]*x for x in externalMortality]
-    internalMortality = [geneC[1]*x for x in internalMortality]
 
     allCauseMortality = [internalMortality[i] + externalMortality[i] for i in range(len(internalMortality))]
 
 
-    print("Life Expectancy: ", getLifeExpectancy(allCauseMortality))
-    print("########################################")
-
-    sys.exit()
- 
-
     plt.plot(ages, externalMortality, label='External Mortality')
     plt.plot(ages, internalMortality, label='Internal Mortality')
+
+
     # plt.plot(ages, allCauseMortality, label='All Cause Mortality')
-    # plt.yscale('log')
-    # plt.ylim(0, 0.002)
+
 
     plt.xlabel('Age')
     plt.gca().xaxis.set_major_locator(plt.MaxNLocator(nbins=10))
